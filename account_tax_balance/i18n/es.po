@@ -197,13 +197,17 @@ msgid "Tax Scope"
 msgstr "Uso del impuesto"
 
 #. module: account_tax_balance
-#: model:ir.actions.act_window,name:account_tax_balance.action_open_tax_balances
 #: model:ir.actions.act_window,name:account_tax_balance.action_tax_balances_tree
-#: model:ir.ui.menu,name:account_tax_balance.menu_action_open_tax_balances
 #: model:ir.ui.menu,name:account_tax_balance.menu_tax_balances
+msgid "Taxes Balance"
+msgstr "Reportes SRI"
+
+#. module: account_tax_balance
+#: model:ir.actions.act_window,name:account_tax_balance.action_open_tax_balances
+#: model:ir.ui.menu,name:account_tax_balance.menu_action_open_tax_balances
 #: model:ir.ui.view,arch_db:account_tax_balance.wizard_open_tax_balances
 msgid "Taxes Balance"
-msgstr "Tabla de impuestos"
+msgstr "Otros impuestos"
 
 #. module: account_tax_balance
 #: model:ir.model.fields,field_description:account_tax_balance.field_wizard_open_tax_balances_to_date

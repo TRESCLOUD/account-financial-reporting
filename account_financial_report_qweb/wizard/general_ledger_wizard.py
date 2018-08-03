@@ -2,9 +2,11 @@
 # Author: Damien Crier
 # Author: Julien Coux
 # Copyright 2016 Camptocamp SA
+# Copyright 2017 Akretion - Alexis de Lattre
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from odoo import models, fields, api
+from odoo.tools.safe_eval import safe_eval
 
 
 class GeneralLedgerReportWizard(models.TransientModel):
@@ -20,12 +22,11 @@ class GeneralLedgerReportWizard(models.TransientModel):
     )
     date_range_id = fields.Many2one(
         comodel_name='date.range',
-        required=True,
         string='Date range'
     )
     date_from = fields.Date(required=True)
     date_to = fields.Date(required=True)
-    fy_start_date = fields.Date(required=True)
+    fy_start_date = fields.Date(compute='_compute_fy_start_date')
     target_move = fields.Selection([('posted', 'All Posted Entries'),
                                     ('all', 'All Entries')],
                                    string='Target Moves',
@@ -59,6 +60,19 @@ class GeneralLedgerReportWizard(models.TransientModel):
         readonly=True,
         string='Not only one unaffected earnings account'
     )
+    foreign_currency = fields.Boolean(
+        string='Show foreign currency',
+        help='Display foreign currency for move lines, unless '
+             'account currency is not setup through chart of accounts '
+             'will display initial and final balance in that currency.'
+    )
+
+    @api.depends('date_from')
+    def _compute_fy_start_date(self):
+        for wiz in self.filtered('date_from'):
+            date = fields.Datetime.from_string(wiz.date_from)
+            res = self.company_id.compute_fiscalyear_dates(date)
+            wiz.fy_start_date = res['date_from']
 
     @api.onchange('company_id')
     def onchange_company_id(self):
@@ -76,10 +90,6 @@ class GeneralLedgerReportWizard(models.TransientModel):
         """Handle date range change."""
         self.date_from = self.date_range_id.date_start
         self.date_to = self.date_range_id.date_end
-        if self.date_from:
-            self.fy_start_date = self.env.user.company_id.find_daterange_fy(
-                fields.Date.from_string(self.date_range_id.date_start)
-            ).date_start
 
     @api.onchange('receivable_accounts_only', 'payable_accounts_only')
     def onchange_type_accounts_only(self):
@@ -105,14 +115,33 @@ class GeneralLedgerReportWizard(models.TransientModel):
             self.receivable_accounts_only = self.payable_accounts_only = False
 
     @api.multi
+    def button_export_html(self):
+        self.ensure_one()
+        action = self.env.ref(
+            'account_financial_report_qweb.action_report_general_ledger')
+        vals = action.read()[0]
+        context1 = vals.get('context', {})
+        if isinstance(context1, basestring):
+            context1 = safe_eval(context1)
+        model = self.env['report_general_ledger_qweb']
+        report = model.create(self._prepare_report_general_ledger())
+        report.compute_data_for_report()
+        context1['active_id'] = report.id
+        context1['active_ids'] = report.ids
+        vals['context'] = context1
+        return vals
+
+    @api.multi
     def button_export_pdf(self):
         self.ensure_one()
-        return self._export()
+        report_type = 'qweb-pdf'
+        return self._export(report_type)
 
     @api.multi
     def button_export_xlsx(self):
         self.ensure_one()
-        return self._export(xlsx_report=True)
+        report_type = 'xlsx'
+        return self._export(report_type)
 
     def _prepare_report_general_ledger(self):
         self.ensure_one()
@@ -121,6 +150,7 @@ class GeneralLedgerReportWizard(models.TransientModel):
             'date_to': self.date_to,
             'only_posted_moves': self.target_move == 'posted',
             'hide_account_balance_at_0': self.hide_account_balance_at_0,
+            'foreign_currency': self.foreign_currency,
             'company_id': self.company_id.id,
             'filter_account_ids': [(6, 0, self.account_ids.ids)],
             'filter_partner_ids': [(6, 0, self.partner_ids.ids)],
@@ -129,8 +159,9 @@ class GeneralLedgerReportWizard(models.TransientModel):
             'fy_start_date': self.fy_start_date,
         }
 
-    def _export(self, xlsx_report=False):
+    def _export(self, report_type):
         """Default export is PDF."""
         model = self.env['report_general_ledger_qweb']
         report = model.create(self._prepare_report_general_ledger())
-        return report.print_report(xlsx_report)
+        report.compute_data_for_report()
+        return report.print_report(report_type)

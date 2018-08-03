@@ -7,6 +7,8 @@ from openerp.fields import Date
 from openerp.tests.common import TransactionCase
 from datetime import datetime
 from dateutil.rrule import MONTHLY
+from odoo import tools
+from odoo.modules.module import get_module_resource
 
 
 class TestAccountTaxBalance(TransactionCase):
@@ -29,6 +31,16 @@ class TestAccountTaxBalance(TransactionCase):
             'count': 12})
         range_generator.action_apply()
         self.range = self.env['date.range']
+        # Codigo modificado por TRESCLOUD
+        # Se le define la cuenta receivable y payable del partner partner_12
+        tools.convert_file(self.env.cr, 'account',
+                           get_module_resource('account', 'test',
+                                               'account_minimal_test.xml'),
+                           {}, 'init', False, 'test')
+        p12 = self.env.ref('base.res_partner_12')
+        p12.property_account_receivable_id = self.env.ref('account.a_recv')
+        p12.property_account_payable_id = self.env.ref('account.a_pay')
+        # Fin del codigo modificado por TRESCLOUD
 
     def test_tax_balance(self):
         tax_account_id = self.env['account.account'].search(
@@ -170,7 +182,7 @@ class TestAccountTaxBalance(TransactionCase):
                 'name': 'Bank Fees',
                 'tax_ids': [(4, tax.id)]
             }), (0, 0, {
-                'account_id': tax.account_id.id,
+                'account_id': tax.account_id.id or invoice_line_account_id,
                 'debit': 0,
                 'credit': 10,
                 'name': 'Bank Fees',

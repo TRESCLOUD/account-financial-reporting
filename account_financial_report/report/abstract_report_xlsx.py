@@ -73,17 +73,22 @@ class AbstractReportXslx(models.AbstractModel):
             ),
             "format_header_amount": workbook.add_format(
                 {"bold": True, "border": True, "bg_color": "#FFFFCC"}
-            ).set_num_format("#,##0." + "0" * currency_id.decimal_places),
-            "format_amount": workbook.add_format().set_num_format(
-                "#,##0." + "0" * currency_id.decimal_places
             ),
+            "format_amount": workbook.add_format(),
             "format_amount_bold": workbook.add_format({"bold": True}).set_num_format(
                 "#,##0." + "0" * currency_id.decimal_places
             ),
             "format_percent_bold_italic": workbook.add_format(
                 {"bold": True, "italic": True}
-            ).set_num_format("#,##0.00%"),
+            ),
         }
+        report_data["formats"]["format_amount"].set_num_format(
+            "#,##0." + "0" * currency_id.decimal_places
+        )
+        report_data["formats"]["format_header_amount"].set_num_format(
+            "#,##0." + "0" * currency_id.decimal_places
+        )
+        report_data["formats"]["format_percent_bold_italic"].set_num_format("#,##0.00%")
 
     def _set_column_width(self, report_data):
         """Set width for all defined columns.
@@ -519,7 +524,7 @@ class AbstractReportXslx(models.AbstractModel):
         report_data["row_pos"] += 1
 
     def _get_currency_amt_format(self, line_object, report_data):
-        """ Return amount format specific for each currency. """
+        """Return amount format specific for each currency."""
         if "account_group_id" in line_object and line_object["account_group_id"]:
             format_amt = report_data["formats"]["format_amount_bold"]
             field_prefix = "format_amount_bold"
@@ -540,7 +545,7 @@ class AbstractReportXslx(models.AbstractModel):
         return format_amt
 
     def _get_currency_amt_format_dict(self, line_dict, report_data):
-        """ Return amount format specific for each currency. """
+        """Return amount format specific for each currency."""
         if line_dict.get("account_group_id", False) and line_dict["account_group_id"]:
             format_amt = report_data["formats"]["format_amount_bold"]
             field_prefix = "format_amount_bold"
@@ -563,7 +568,7 @@ class AbstractReportXslx(models.AbstractModel):
         return format_amt
 
     def _get_currency_amt_header_format(self, line_object, report_data):
-        """ Return amount header format for each currency. """
+        """Return amount header format for each currency."""
         format_amt = report_data["formats"]["format_header_amount"]
         if line_object.currency_id:
             field_name = "format_header_amount_%s" % line_object.currency_id.name
@@ -581,7 +586,7 @@ class AbstractReportXslx(models.AbstractModel):
         return format_amt
 
     def _get_currency_amt_header_format_dict(self, line_object, report_data):
-        """ Return amount header format for each currency. """
+        """Return amount header format for each currency."""
         format_amt = report_data["formats"]["format_header_amount"]
         if line_object["currency_id"]:
             field_name = "format_header_amount_%s" % line_object["currency_name"]

@@ -83,6 +83,12 @@ class AccountTax(models.Model):
         ids_with_moves = self._account_tax_ids_with_moves()
         return [("id", "in", ids_with_moves)]
 
+    @api.depends_context(
+        "from_date",
+        "to_date",
+        "company_ids",
+        "target_move",
+    )
     def _compute_balance(self):
         for tax in self:
             tax.balance_regular = tax.compute_balance(
@@ -174,11 +180,11 @@ class AccountTax(models.Model):
         domain = self.get_move_lines_domain(
             tax_or_base=tax_or_base, financial_type=financial_type
         )
-        action = self.env.ref("account.action_account_moves_all_tree")
-        vals = action.sudo().read()[0]
-        vals["context"] = {}
-        vals["domain"] = domain
-        return vals
+        xmlid = "account.action_account_moves_all_tree"
+        action = self.env["ir.actions.act_window"]._for_xml_id(xmlid)
+        action["context"] = {}
+        action["domain"] = domain
+        return action
 
     def view_tax_lines(self):
         self.ensure_one()

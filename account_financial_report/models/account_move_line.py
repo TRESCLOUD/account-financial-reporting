@@ -1,6 +1,9 @@
 # Copyright 2019 ACSONE SA/NV (<http://acsone.eu>)
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).-
+import logging
 from odoo import api, fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMoveLine(models.Model):
@@ -12,6 +15,7 @@ class AccountMoveLine(models.Model):
 
     @api.depends("analytic_distribution")
     def _compute_analytic_account_ids(self):
+        counter = 0
         for record in self:
             if not record.analytic_distribution:
                 record.analytic_account_ids = False
@@ -23,6 +27,12 @@ class AccountMoveLine(models.Model):
                         ]
                     }
                 )
+            counter += 1
+            _logger.info(u'Computando campo analytic_account_ids en línea de asiento %(move_id)s. %(counter)s/%(total)s' % {
+                'move_id': record.move_id.name,
+                'counter': counter,
+                'total': len(self),
+            })
 
     def init(self):
         """

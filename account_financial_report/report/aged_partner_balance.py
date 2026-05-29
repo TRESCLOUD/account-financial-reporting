@@ -202,6 +202,13 @@ class AgedPartnerBalanceReport(models.AbstractModel):
             if move_line["partner_id"]:
                 prt_id = move_line["partner_id"][0]
                 prt_name = move_line["partner_id"][1]
+            elif move_line.get("employee_id") and self.env.user.has_group('hr_payroll.group_hr_payroll_user'):
+                employee = self.env["hr.employee"].sudo().browse(
+                    move_line["employee_id"][0]
+                )
+                # Use negative employee ID to avoid collision with partner IDs
+                prt_id = -employee.id
+                prt_name = employee.name or ""
             else:
                 prt_id = 0
                 prt_name = ""
@@ -475,4 +482,5 @@ class AgedPartnerBalanceReport(models.AbstractModel):
             "amount_residual",
             "reconciled",
             "date_maturity",
+            "employee_id",
         ]

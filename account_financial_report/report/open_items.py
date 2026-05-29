@@ -122,15 +122,28 @@ class OpenItemsReport(models.AbstractModel):
             acc_id = move_line["account_id"][0]
             # Partners data
             partner = self.env["res.partner"]
+            employee = self.env["hr.employee"]
             if move_line.get("partner_id"):
                 partner = self.env["res.partner"].browse(move_line["partner_id"][0])
+            elif move_line.get("employee_id") and self.env.user.has_group('hr_payroll.group_hr_payroll_user'):
+                employee = self.env["hr.employee"].sudo().browse(
+                    move_line["employee_id"][0]
+                )
             if grouped_by == "salesperson":
                 user = partner.user_id
                 group_id = user.id or 0
                 group_name = user.name or _("Missing Salesperson")
             else:
-                group_id = partner.id or 0
-                group_name = partner.name or _("Missing Partner")
+                if partner:
+                    group_id = partner.id
+                    group_name = partner.name
+                elif employee:
+                    # Use negative employee ID to avoid collision with partner IDs
+                    group_id = -employee.id
+                    group_name = employee.name
+                else:
+                    group_id = 0
+                    group_name = _("Missing Partner")
             if group_id not in group_ids:
                 partners_data.update({group_id: {"id": group_id, "name": group_name}})
                 group_ids.add(group_id)
@@ -156,7 +169,7 @@ class OpenItemsReport(models.AbstractModel):
                     and move_line["date_maturity"].strftime("%d/%m/%Y"),
                     "original": original,
                     "partner_id": partner.id or 0,
-                    "partner_name": partner.name or "",
+                    "partner_name": partner.name or employee.name or "",
                     "ref_label": ref_label,
                     "journal_id": move_line["journal_id"][0],
                     "move_name": move_line["move_name"],
@@ -311,4 +324,5 @@ class OpenItemsReport(models.AbstractModel):
             "debit",
             "amount_currency",
             "move_name",
+            "employee_id",
         ]

@@ -125,7 +125,7 @@ class OpenItemsReport(models.AbstractModel):
             employee = self.env["hr.employee"]
             if move_line.get("partner_id"):
                 partner = self.env["res.partner"].browse(move_line["partner_id"][0])
-            elif move_line.get("employee_id") and self.env.user.has_group('hr_payroll.group_hr_payroll_user'):
+            elif move_line.get("employee_id", False):
                 employee = self.env["hr.employee"].sudo().browse(
                     move_line["employee_id"][0]
                 )
@@ -313,6 +313,14 @@ class OpenItemsReport(models.AbstractModel):
         )
         return res
 
+    def _l10n_ec_employee_field_available(self):
+        """
+        Para verificar que el campo esta disponible dentro del módelo y permisos del usuario
+        """
+        if 'employee_id' in self.env['account.move.line']._fields and self.env.user.has_group('hr_payroll.group_hr_payroll_user'):
+            return True
+        return False
+
     def _get_ml_fields(self):
         return self.COMMON_ML_FIELDS + [
             "amount_residual",
@@ -324,5 +332,4 @@ class OpenItemsReport(models.AbstractModel):
             "debit",
             "amount_currency",
             "move_name",
-            "employee_id",
-        ]
+        ] + (self._l10n_ec_employee_field_available() and ["employee_id"] or [])

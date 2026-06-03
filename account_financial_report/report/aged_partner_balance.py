@@ -202,6 +202,13 @@ class AgedPartnerBalanceReport(models.AbstractModel):
             if move_line["partner_id"]:
                 prt_id = move_line["partner_id"][0]
                 prt_name = move_line["partner_id"][1]
+            elif move_line.get("employee_id", False):
+                employee = self.env["hr.employee"].sudo().browse(
+                    move_line["employee_id"][0]
+                )
+                # Use negative employee ID to avoid collision with partner IDs
+                prt_id = -employee.id
+                prt_name = employee.name or ""
             else:
                 prt_id = 0
                 prt_name = ""
@@ -470,9 +477,17 @@ class AgedPartnerBalanceReport(models.AbstractModel):
         )
         return res
 
+    def _l10n_ec_employee_field_available(self):
+        """
+        Para verificar que el campo esta disponible dentro del módelo y permisos del usuario
+        """
+        if 'employee_id' in self.env['account.move.line']._fields and self.env.user.has_group('hr_payroll.group_hr_payroll_user'):
+            return True
+        return False
+
     def _get_ml_fields(self):
         return self.COMMON_ML_FIELDS + [
             "amount_residual",
             "reconciled",
             "date_maturity",
-        ]
+        ] + (self._l10n_ec_employee_field_available() and ["employee_id"] or [])

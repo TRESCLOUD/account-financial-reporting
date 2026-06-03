@@ -314,14 +314,18 @@
             </div>
             <!--## partner-->
             <div class="act_as_cell left">
-                <span
-                    t-if="line.get('partner_id', False)"
-                    t-att-res-id="line['partner_id']"
-                    res-model="res.partner"
-                    view-type="form"
-                >
-                    <t t-esc="line['partner_name']" />
-                </span>
+                <t t-if="line.get('partner_id', False)">
+                    <span
+                        t-att-res-id="line['partner_id']"
+                        res-model="res.partner"
+                        view-type="form"
+                    >
+                        <t t-esc="line['partner_name']" />
+                    </span>
+                </t>
+                <t t-elif="line.get('partner_name', False)">
+                    <span t-esc="line['partner_name']" />
+                </t>
             </div>
             <!--## ref - label-->
             <div class="act_as_cell left">

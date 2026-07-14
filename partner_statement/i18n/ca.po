@@ -9,69 +9,69 @@ msgstr ""
 "Project-Id-Version: Odoo Server 9.0c\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-04-26 02:44+0000\n"
-"PO-Revision-Date: 2025-12-09 18:42+0000\n"
-"Last-Translator: Ricard <ricard.calvo@forgeflow.com>\n"
+"PO-Revision-Date: 2026-05-12 20:57+0000\n"
+"Last-Translator: QuiJoQuim <quim.rebull@gmail.com>\n"
 "Language-Team: Catalan (https://www.transifex.com/oca/teams/23907/ca/)\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.4\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "1 - 30 Days"
-msgstr ""
+msgstr "1-30 dies"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "1 Month"
-msgstr ""
+msgstr "1 mes"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "121 Days +"
-msgstr ""
+msgstr "+121 dies"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "2 Months"
-msgstr ""
+msgstr "2 mesos"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "3 Months"
-msgstr ""
+msgstr "3 Mesos"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "31 - 60 Days"
-msgstr ""
+msgstr "31-60 dies"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "4 Months"
-msgstr ""
+msgstr "4 Mesos"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "61 - 90 Days"
-msgstr ""
+msgstr "61 - 90 Dies"
 
 #. module: partner_statement
 #. odoo-python
 #: code:addons/partner_statement/report/report_statement_common.py:0
 msgid "91 - 120 Days"
-msgstr ""
+msgstr "91 - 120 Dies"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.statement_common_view
@@ -83,6 +83,12 @@ msgid ""
 "due or overdue.\n"
 "                    </span>"
 msgstr ""
+"<span class=\"o_form_label\">Els detalls de venciments es poden mostrar en "
+"el informe, expressats en \n"
+"                                                          períodes, \n"
+"                                                          per tant, "
+"l'empresa pot revisar quina quantitat hi ha pendent, venç o està vençuda.\n"
+"                    </span>"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.activity_statement_wizard_view
@@ -142,28 +148,28 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:partner_statement.detailed_activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.outstanding_statement_document
 msgid "<strong>Date:</strong>"
-msgstr ""
+msgstr "<strong>Data:</strong>"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.detailed_activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.outstanding_statement_document
 msgid "<strong>Partner Code:</strong>"
-msgstr ""
+msgstr "<strong>Codi client:</strong>"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.detailed_activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.outstanding_statement_document
 msgid "<strong>Partner Name:</strong>"
-msgstr ""
+msgstr "<strong>Nom empresa:</strong>"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.detailed_activity_statement_document
 #: model_terms:ir.ui.view,arch_db:partner_statement.outstanding_statement_document
 msgid "<strong>The partner doesn't have due entries.</strong>"
-msgstr ""
+msgstr "<strong>Aquest tercer no té assentaments vençuts.</strong>"
 
 #. module: partner_statement
 #: model:ir.model.fields,field_description:partner_statement.field_activity_statement_wizard__account_type
@@ -171,7 +177,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:partner_statement.field_outstanding_statement_wizard__account_type
 #: model:ir.model.fields,field_description:partner_statement.field_statement_common_wizard__account_type
 msgid "Account Type"
-msgstr ""
+msgstr "Tipus de compte"
 
 #. module: partner_statement
 #: model:ir.model.fields,field_description:partner_statement.field_activity_statement_wizard__excluded_accounts_selector
@@ -179,7 +185,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:partner_statement.field_outstanding_statement_wizard__excluded_accounts_selector
 #: model:ir.model.fields,field_description:partner_statement.field_statement_common_wizard__excluded_accounts_selector
 msgid "Accounts to exclude"
-msgstr ""
+msgstr "Comptes a excloure"
 
 #. module: partner_statement
 #. odoo-python
@@ -187,12 +193,12 @@ msgstr ""
 #: model:ir.actions.report,name:partner_statement.action_print_activity_statement
 #: model:ir.actions.report,name:partner_statement.action_print_activity_statement_html
 msgid "Activity Statement"
-msgstr ""
+msgstr "Estat del compte"
 
 #. module: partner_statement
 #: model:ir.model,name:partner_statement.model_activity_statement_wizard
 msgid "Activity Statement Wizard"
-msgstr ""
+msgstr "Assistent de l'estat del compte"
 
 #. module: partner_statement
 #: model:ir.model,name:partner_statement.model_report_p_s_report_activity_statement_xlsx
@@ -202,7 +208,7 @@ msgstr ""
 #. module: partner_statement
 #: model:ir.actions.report,name:partner_statement.action_print_activity_statement_xlsx
 msgid "Activity Statement XLSX"
-msgstr ""
+msgstr "Declaració d'activitat XLSX"
 
 #. module: partner_statement
 #: model_terms:ir.ui.view,arch_db:partner_statement.res_config_settings_view_form
@@ -243,8 +249,7 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "Aging Report at %(end)s in %(currency)s"
 msgstr ""
 
@@ -340,9 +345,7 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "Date:"
 msgstr ""
 
@@ -383,8 +386,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/partner_statement/report/activity_statement.py:0
 msgid ""
-"Detailed Statement between %(starting_date)s and %(ending_date)s in "
-"%(currency)s"
+"Detailed Statement between %(starting_date)s and %(ending_date)s in %"
+"(currency)s"
 msgstr ""
 
 #. module: partner_statement
@@ -430,9 +433,8 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
 #: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 #: model_terms:ir.ui.view,arch_db:partner_statement.activity_balance
 #: model_terms:ir.ui.view,arch_db:partner_statement.outstanding_balance
 msgid "Ending Balance"
@@ -683,6 +685,11 @@ msgid "Show only lines due before the selected date"
 msgstr ""
 
 #. module: partner_statement
+#: model:ir.model,name:partner_statement.model_report_p_s_report_statement_common_xlsx
+msgid "Statement Common XLSX Report"
+msgstr ""
+
+#. module: partner_statement
 #: model:ir.model,name:partner_statement.model_statement_common
 msgid "Statement Reports Common"
 msgstr ""
@@ -700,9 +707,7 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "Statement from:"
 msgstr ""
 
@@ -715,17 +720,13 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "Statement of Account from %s"
 msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "Statement to:"
 msgstr ""
 
@@ -751,8 +752,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/partner_statement/report/activity_statement.py:0
 msgid ""
-"Supplier Statement between %(starting_date)s and %(ending_date)s in "
-"%(currency)s"
+"Supplier Statement between %(starting_date)s and %(ending_date)s in %"
+"(currency)s"
 msgstr ""
 
 #. module: partner_statement
@@ -779,9 +780,7 @@ msgstr ""
 
 #. module: partner_statement
 #. odoo-python
-#: code:addons/partner_statement/report/activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/detailed_activity_statement_xlsx.py:0
-#: code:addons/partner_statement/report/outstanding_statement_xlsx.py:0
+#: code:addons/partner_statement/report/report_statement_common_xlsx.py:0
 msgid "VAT:"
 msgstr ""
 

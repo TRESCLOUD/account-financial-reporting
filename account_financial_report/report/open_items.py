@@ -133,7 +133,7 @@ class OpenItemsReport(models.AbstractModel):
                 user = partner.user_id
                 group_id = user.id or 0
                 group_name = user.name or _("Missing Salesperson")
-            else:
+            elif grouped_by:
                 if partner:
                     group_id = partner.id
                     group_name = partner.name
@@ -144,6 +144,9 @@ class OpenItemsReport(models.AbstractModel):
                 else:
                     group_id = 0
                     group_name = _("Missing Partner")
+            else:
+                group_id = 0
+                group_name = ""
             if group_id not in group_ids:
                 partners_data.update({group_id: {"id": group_id, "name": group_name}})
                 group_ids.add(group_id)

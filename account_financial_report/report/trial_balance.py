@@ -6,6 +6,7 @@
 
 from odoo import api, models
 from odoo.exceptions import UserError
+from odoo.tools import SQL
 from odoo.tools.float_utils import float_is_zero
 
 
@@ -768,11 +769,23 @@ class TrialBalanceReport(models.AbstractModel):
         trial_balance = sorted(trial_balance, key=lambda k: k["name"])
         return trial_balance, total_amount_grouped
 
+    def _get_node_account_ids(self):
+        """Cuentas que tienen hijas, es decir las que hacen de grupo en v20.
+
+        `account.account` no expone `child_ids`, así que el conjunto sale de una
+        consulta sobre `parent_id`.
+        """
+        rows = self.env.execute_query(
+            SQL("SELECT DISTINCT parent_id FROM account_account WHERE parent_id IS NOT NULL")
+        )
+        return {row[0] for row in rows}
+
     def _get_hierarchy_groups(self, group_ids, groups_data, foreign_currency):
         processed_groups = []
         # Sort groups so that parent groups are processed before child groups
         groups = (
-            self.env["account.group"]
+            self.env["account.account"]
+            .with_context(active_test=False)
             .browse(group_ids)
             .sorted(key=lambda x: x.complete_code)
         )
@@ -791,10 +804,14 @@ class TrialBalanceReport(models.AbstractModel):
                 processed_groups.append(parent_id)
             while parent_id:
                 if parent_id not in groups_data.keys():
-                    group = self.env["account.group"].browse(parent_id)
+                    group = (
+                        self.env["account.account"]
+                        .with_context(active_test=False)
+                        .browse(parent_id)
+                    )
                     groups_data[group.id] = {
                         "id": group.id,
-                        "code": group.code_prefix_start,
+                        "code": group.code,
                         "name": group.name,
                         "parent_id": group.parent_id.id,
                         "complete_code": group.complete_code,
@@ -833,25 +850,31 @@ class TrialBalanceReport(models.AbstractModel):
             .browse(accounts_ids)
         )
         account_group_relation = {}
+        node_ids = self._get_node_account_ids()
         for account in accounts:
+            # Una cuenta-nodo es grupo de sí misma: así su importe propio alimenta
+            # su subtotal en vez de saltar al abuelo.
+            group = account if account.id in node_ids else account.parent_id
             accounts_data[account.id]["complete_code"] = (
-                account.group_id.complete_code + " / " + account.code
-                if account.group_id.id
-                else ""
+                group.complete_code + " / " + account.code if group else ""
             )
-            if account.group_id.id:
-                if account.group_id.id not in account_group_relation.keys():
-                    account_group_relation.update({account.group_id.id: [account.id]})
+            if group:
+                if group.id not in account_group_relation.keys():
+                    account_group_relation.update({group.id: [account.id]})
                 else:
-                    account_group_relation[account.group_id.id].append(account.id)
-        groups = self.env["account.group"].browse(account_group_relation.keys())
+                    account_group_relation[group.id].append(account.id)
+        groups = (
+            self.env["account.account"]
+            .with_context(active_test=False)
+            .browse(account_group_relation.keys())
+        )
         groups_data = {}
         for group in groups:
             groups_data.update(
                 {
                     group.id: {
                         "id": group.id,
-                        "code": group.code_prefix_start,
+                        "code": group.code,
                         "name": group.name,
                         "parent_id": group.parent_id.id,
                         "type": "group_type",
@@ -895,15 +918,21 @@ class TrialBalanceReport(models.AbstractModel):
         return groups_data
 
     def _get_computed_groups_data(self, accounts_data, total_amount, foreign_currency):
-        groups = self.env["account.group"].search([("id", "!=", False)])
+        groups = (
+            self.env["account.account"]
+            .with_context(active_test=False)
+            .browse(self._get_node_account_ids())
+        )
         groups_data = {}
         for group in groups:
-            len_group_code = len(group.code_prefix_start)
+            # El subárbol sustituye al emparejamiento por prefijo de código, que
+            # v20 retiró junto con `account.group`.
+            group_account_ids = set(group.compute_account_ids.ids)
             groups_data.update(
                 {
                     group.id: {
                         "id": group.id,
-                        "code": group.code_prefix_start,
+                        "code": group.code,
                         "name": group.name,
                         "parent_id": group.parent_id.id,
                         "type": "group_type",
@@ -921,7 +950,7 @@ class TrialBalanceReport(models.AbstractModel):
                 groups_data[group.id]["initial_currency_balance"] = 0.0
                 groups_data[group.id]["ending_currency_balance"] = 0.0
             for account in accounts_data.values():
-                if group.code_prefix_start == account["code"][:len_group_code]:
+                if account["id"] in group_account_ids:
                     acc_id = account["id"]
                     group_id = group.id
                     groups_data[group_id]["initial_balance"] += total_amount[acc_id][

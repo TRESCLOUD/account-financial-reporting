@@ -26,13 +26,23 @@ class TestTrialBalanceReport(AccountTestInvoicingCommon):
                 tracking_disable=True,
             )
         )
-        # Remove previous account groups and related invoices to avoid conflicts
-        group_obj = cls.env["account.group"]
-        cls.group1 = group_obj.create({"code_prefix_start": "1", "name": "Group 1"})
-        cls.group11 = group_obj.create(
-            {"code_prefix_start": "11", "name": "Group 11", "parent_id": cls.group1.id}
+        # Odoo 20 eliminó `account.group`: un grupo es una cuenta con hijas, así que
+        # la jerarquía se arma con cuentas-nodo y el `parent_id` de cada cuenta.
+        cls.group1 = cls._create_account_account(
+            cls, {"code": "1", "name": "Group 1", "account_type": "asset_current"}
         )
-        cls.group2 = group_obj.create({"code_prefix_start": "2", "name": "Group 2"})
+        cls.group11 = cls._create_account_account(
+            cls,
+            {
+                "code": "11",
+                "name": "Group 11",
+                "account_type": "asset_current",
+                "parent_id": cls.group1.id,
+            },
+        )
+        cls.group2 = cls._create_account_account(
+            cls, {"code": "2", "name": "Group 2", "account_type": "income_other"}
+        )
         # Set accounts
         cls.account001 = cls._create_account_account(
             cls,
@@ -77,6 +87,10 @@ class TestTrialBalanceReport(AccountTestInvoicingCommon):
                 "account_type": "income_other",
             },
         )
+        # Reproduce el reparto que en v18 hacía el prefijo de código del grupo.
+        cls.account100.parent_id = cls.group1
+        cls.account200.parent_id = cls.group2
+        cls.account201.parent_id = cls.group2
         cls.previous_fy_date_start = "2015-01-01"
         cls.previous_fy_date_end = "2015-12-31"
         cls.fy_date_start = "2016-01-01"
@@ -876,3 +890,54 @@ class TestTrialBalanceReport(AccountTestInvoicingCommon):
         self.assertEqual(account_lines["final_balance"], 160.0)
         total = result_foreign_currency["total_amount"][self.account100.id]
         self.assertEqual(total["ending_currency_balance"], 220.0)
+
+    def test_09_node_account_with_own_moves(self):
+        """Una cuenta-nodo con apuntes propios sale de detalle y en su subtotal.
+
+        En v18 era imposible: el grupo era otro modelo y no podía tener apuntes.
+        En v20 sí, y si su importe propio no entra en su propio subtotal se va al
+        abuelo y el nivel queda corto.
+        """
+        journal = self.env["account.journal"].search(
+            [("company_id", "=", self.env.user.company_id.id)], limit=1
+        )
+        move = self.env["account.move"].create(
+            {
+                "journal_id": journal.id,
+                "date": self.date_start,
+                "line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "debit": 500,
+                            "credit": 0,
+                            "partner_id": self.partner.id,
+                            "account_id": self.group1.id,
+                        },
+                    ),
+                    (
+                        0,
+                        0,
+                        {
+                            "debit": 0,
+                            "credit": 500,
+                            "partner_id": self.partner.id,
+                            "account_id": self.account100.id,
+                        },
+                    ),
+                ],
+            }
+        )
+        move.action_post()
+        trial_balance = self._get_report_lines(show_hierarchy=True)["trial_balance"]
+
+        detail_lines = self._get_account_lines(self.group1.id, trial_balance)
+        self.assertTrue(detail_lines, "La cuenta-nodo debe salir también de detalle")
+        self.assertEqual(detail_lines["debit"], 500)
+        self.assertEqual(detail_lines["credit"], 0)
+
+        group_lines = self._get_group_lines(self.group1.id, trial_balance)
+        # 500 propios + los 500 al haber de la cuenta hija.
+        self.assertEqual(group_lines["debit"], 500)
+        self.assertEqual(group_lines["credit"], 500)
